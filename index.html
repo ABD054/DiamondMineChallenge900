@@ -223,7 +223,7 @@
             box-shadow: 0 10px 25px rgba(255, 119, 97, 0.4);
         }
 
-        /* ========== لوحة الأدمن ========== */
+        /* ========== لوحة الأدمن كاملة ========== */
         .admin-panel {
             background: rgba(0, 0, 0, 0.4);
             padding: 25px;
@@ -1084,6 +1084,72 @@
             <button class="logout-btn" onclick="logout()">🚪 خروج</button>
         </div>
 
+        <!-- ========== لوحة الأدمن كاملة ========== -->
+        <div class="admin-panel" id="adminPanel" style="display: none;">
+            <div class="admin-title">🔧 لوحة تحكم الأدمن</div>
+            
+            <!-- إدارة المستخدمين -->
+            <div class="admin-section">
+                <div class="section-title">👥 إدارة المستخدمين</div>
+                <div style="overflow-x: auto;">
+                    <table class="users-table" id="usersTable">
+                        <thead>
+                            <tr>
+                                <th>المستخدم</th>
+                                <th>الرصيد</th>
+                                <th>الحالة</th>
+                                <th>الإجراءات</th>
+                            </tr>
+                        </thead>
+                        <tbody id="usersTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- تعديل رصيد -->
+            <div class="admin-section">
+                <div class="section-title">💰 تعديل رصيد مستخدم</div>
+                <div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
+                    <input type="text" id="adminUsername" class="input-field" placeholder="اسم المستخدم" style="flex: 1;">
+                    <input type="number" id="adminAmount" class="input-field" placeholder="المبلغ" style="width: 150px;">
+                    <button class="admin-action-btn add-balance-btn" onclick="adminAddBalance()">➕ إضافة</button>
+                    <button class="admin-action-btn remove-balance-btn" onclick="adminRemoveBalance()">➖ خصم</button>
+                    <button class="admin-action-btn ban-btn" onclick="adminBanUser()">🚫 حظر/فك</button>
+                </div>
+            </div>
+
+            <!-- أكواد الشحن -->
+            <div class="admin-section">
+                <div class="section-title">🎫 أكواد الشحن</div>
+                <div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap; margin-bottom: 15px;">
+                    <input type="number" id="codeAmount" class="input-field" placeholder="قيمة الكود" style="width: 150px;">
+                    <button class="generate-code-btn" onclick="generateChargeCode()">🎫 إنشاء كود جديد</button>
+                </div>
+                <div style="overflow-x: auto;">
+                    <table class="codes-table" id="codesTable">
+                        <thead>
+                            <tr>
+                                <th>الكود</th>
+                                <th>القيمة</th>
+                                <th>الحالة</th>
+                                <th>الإجراءات</th>
+                            </tr>
+                        </thead>
+                        <tbody id="codesTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========== قسم الشحن ========== -->
+        <div class="charge-section">
+            <div class="section-title">💳 شحن الرصيد</div>
+            <div class="charge-input-group">
+                <input type="text" id="chargeCode" class="charge-input" placeholder="أدخل كود الشحن">
+                <button class="charge-btn" onclick="useChargeCode()">⚡ شحن</button>
+            </div>
+        </div>
+
         <!-- ========== رأس اللعبة ========== -->
         <h1 style="font-size: 2.8em; margin: 20px 0; background: linear-gradient(45deg, #00ff88, #00ccff, #7877C6, #FF7761); -webkit-background-clip: text; background-clip: text; color: transparent; text-shadow: 0 0 30px rgba(120,119,198,0.3); animation: titleFloat 3s ease-in-out infinite;">
             💎 جوهرة الحظ 💣
@@ -1217,9 +1283,9 @@
         // أكواد شحن افتراضية
         if (chargeCodes.length === 0) {
             chargeCodes = [
-                { code: 'START100', amount: 100, isUsed: false },
-                { code: 'FIRST50', amount: 50, isUsed: false },
-                { code: 'BONUS200', amount: 200, isUsed: false }
+                { code: 'START100', amount: 100, isUsed: false, createdAt: new Date().toISOString() },
+                { code: 'FIRST50', amount: 50, isUsed: false, createdAt: new Date().toISOString() },
+                { code: 'BONUS200', amount: 200, isUsed: false, createdAt: new Date().toISOString() }
             ];
             localStorage.setItem('chargeCodes', JSON.stringify(chargeCodes));
         }
@@ -1271,6 +1337,8 @@
                 adminPanel.style.display = 'block';
                 loadUsers();
                 loadCodes();
+            } else {
+                adminPanel.style.display = 'none';
             }
             
             showMessage('🎉 مرحباً', `مرحباً ${username}!<br>رصيدك: $${(user.balance || 0).toFixed(2)}`);
